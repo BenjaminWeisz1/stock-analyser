@@ -2,10 +2,14 @@ const API_BASE = "http://127.0.0.1:8000";
 
 async function analyzeStock() {
     const stock = document.getElementById("stock-select").value;
+    const date = document.getElementById("date-input").value;
 
     // Get the endpoint created by main.py
-    const url = `${API_BASE}/stocks/analyze?stock=${stock}`;
-
+    let url = `${API_BASE}/stocks/analyze?stock=${stock}`;
+    if (date) {
+        url += `&date=${date}`;
+    }
+    
     // Send an HTTP POST request
     const response = await fetch(url, { method: "POST" });
 

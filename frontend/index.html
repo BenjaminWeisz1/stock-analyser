@@ -8,7 +8,7 @@
 
 <body>
     <!-- Login -->
-     <div id="login-view">
+    <div id="login-view">
         <h2>Login</h2>
         <input placeholder="Email">
         <input type="password" placeholder="Password">
@@ -19,17 +19,17 @@
     <div id="dashboard-view" style="display:none">
         <h2>Select Stock</h2>
         <select id="stock-select">
-            <option>BHG</option>
+            <option>IBM</option>
             <option>PRX</option>
             <option>BTI</option>
         </select>
-        <input type="date">
-        
+        <input type="date" id="date-input">
+        <button id="analyze-btn">Analyze</button>
     </div>
 
     <!-- Stock details -->
     <div id="stock-view" style="display:none">
-        <h2>BHG</h2>
+        <h2 id="stock-title">IBM</h2>
         <pre id="result"></pre>
     </div>
 
