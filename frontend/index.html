@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Corion Capital</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Login -->
+     <div id="login-view">
+        <h2>Login</h2>
+        <input placeholder="Email">
+        <input type="password" placeholder="Password">
+        <button>Login</button>
+    </div>
+
+    <!-- List stocks -->
+    <div id="dashboard-view" style="display:none">
+        <h2>Select Stock</h2>
+        <select id="stock-select">
+            <option>BHG</option>
+            <option>PRX</option>
+            <option>BTI</option>
+        </select>
+        <input type="date">
+        
+    </div>
+
+    <!-- Stock details -->
+    <div id="stock-view" style="display:none">
+        <h2>BHG</h2>
+        <pre id="result"></pre>
+    </div>
+
+    <!-- Load JS -->
+    <script src="app.js"></script>
+</body>
+</html>
