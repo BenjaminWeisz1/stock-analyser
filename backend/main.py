@@ -1,7 +1,7 @@
 from fastapi.middleware.cors import CORSMiddleware
 from backend.auth.routes import router as auth_router
 from backend.auth.security import require_auth
-from backend.db.database import init_db
+from backend.db.database import init_db, get_cached_stock, insert_cached_stock
 from fastapi import FastAPI, Depends
 from dotenv import load_dotenv
 import os
@@ -69,7 +69,21 @@ def get_list():
 
 # Show the financial information associated with a stock
 @app.post("/stocks/analyze")
-def analyze_stock(stock: str, date: str | None = None, user_email: str = Depends(require_auth)):
+def analyze_stock(stock: str, date: str, user_email: str = Depends(require_auth)):
+    
+    # Check if stock is in cache
+    cached = get_cached_stock(stock, date)
+    if cached:
+        return {
+            "name": stock,
+            "date": date,
+            "price": cached['price'],
+            "returns": cached['returns'],
+            "volume": cached['volume'],
+            "trend": "green"
+        }
+    
+    # If stock is not in cache, fetch from API
     series = fetch_daily_stock_data(stock)
 
     # Sort dates (newest first)
@@ -96,11 +110,14 @@ def analyze_stock(stock: str, date: str | None = None, user_email: str = Depends
 
     volume = int(today["5. volume"])
 
+    # Cache the result
+    insert_cached_stock(stock, date, close_today, returns, volume)
+
     return {
         "name": stock,
         "date": date,
         "price": close_today,
         "returns": returns,
         "volume": volume,
-        "trend": "Green"  # still dummy
+        "trend": "green",
     }

@@ -6,3 +6,15 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL
 );
 """
+
+CREATE_STOCK_CACHE_TABLE = """
+CREATE TABLE IF NOT EXISTS stock_cache (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    symbol TEXT NOT NULL,
+    date TEXT NOT NULL,
+    price REAL NOT NULL,
+    returns REAL NOT NULL,
+    volume INTEGER NOT NULL,
+    UNIQUE(symbol, date)
+)
+"""
