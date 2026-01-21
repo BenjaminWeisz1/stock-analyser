@@ -7,21 +7,28 @@
 </head>
 
 <body>
-    <!-- Login -->
+    <!-- Login and signup -->
     <div id="login-view">
-        <h2>Login</h2>
-        <input placeholder="Email">
-        <input type="password" placeholder="Password">
-        <button>Login</button>
+        <h2>Authentication</h2>
+        <input id="email-input" placeholder="Email">
+        <input id="password-input" type="password" placeholder="Password">
+        <button id="login-btn">Login</button>
+        <button id="register-btn">Register</button>
+        <p id="auth-message"></p>
     </div>
 
     <!-- List stocks -->
     <div id="dashboard-view" style="display:none">
         <h2>Select Stock</h2>
         <select id="stock-select">
+            <option>AAPL</option>
+            <option>GOOG</option>
             <option>IBM</option>
-            <option>PRX</option>
-            <option>BTI</option>
+            <option>MSFT</option>
+            <option>NPXI</option>
+            <option>PANW</option>
+            <option>PYPL</option>
+            <option>TSLA</option>
         </select>
         <input type="date" id="date-input">
         <button id="analyze-btn">Analyze</button>

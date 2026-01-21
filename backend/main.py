@@ -1,5 +1,8 @@
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI
+from backend.auth.routes import router as auth_router
+from backend.auth.security import require_auth
+from backend.db.database import init_db
+from fastapi import FastAPI, Depends
 from dotenv import load_dotenv
 import os
 import requests
@@ -32,8 +35,11 @@ def fetch_daily_stock_data(symbol: str):
 
     return data["Time Series (Daily)"]
 
+init_db()
 
 app = FastAPI()
+
+app.include_router(auth_router)
 
 # Indicate the port used in development
 # Update in Phase 5
@@ -63,7 +69,7 @@ def get_list():
 
 # Show the financial information associated with a stock
 @app.post("/stocks/analyze")
-def analyze_stock(stock: str, date: str | None = None):
+def analyze_stock(stock: str, date: str | None = None, user_email: str = Depends(require_auth)):
     series = fetch_daily_stock_data(stock)
 
     # Sort dates (newest first)
