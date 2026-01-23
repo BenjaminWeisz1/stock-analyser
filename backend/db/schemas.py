@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS stock_cache (
     price REAL NOT NULL,
     returns REAL NOT NULL,
     volume INTEGER NOT NULL,
+    trend TEXT NOT NULL,
     UNIQUE(symbol, date)
 )
 """

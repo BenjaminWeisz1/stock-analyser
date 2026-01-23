@@ -2,8 +2,8 @@
 Project for a full-stack web application that allows users to analyse stocks using historical market data
 
 ## Running the app
-- To run the backend, run the following command in the terminal: uvicorn backend.main:app --reload
-- To run the frontend, open frontend/index.html with live server in VS Code
+- Run the following command in the terminal: uvicorn backend.main:app --reload
+- Then to see the frontend, open http://127.0.0.1:8000/static/index.html in the browser
 
 ## Features
 - User registration and login with salted SHA-256 password hashing
@@ -23,3 +23,16 @@ Project for a full-stack web application that allows users to analyse stocks usi
 ## Caching
 - Stock analysis results are cached in a SQLite database
 - If a request has been processed before, cached results are returned to avoid redundant API calls
+
+## Neural network
+Use a simple feed-forward neural network for predicting short-term stock trends
+
+### Model overview
+- Implemented using Keras
+- Input: last 30 daily returns for a stock
+- Output: binary classification as to whether the returns the next day were positive (increasing) or negative (decreasing)
+
+### Training process
+- The model is trained offline using historical market data
+- Run backend/ml/download_stock_data.py to download daily price data from Alpha Vantage and store locally as CSV files
+- Run backend/ml/train_keras_model.py to train the model on this data and save the results to backend/ml/keras_model.h5

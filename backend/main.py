@@ -1,39 +1,12 @@
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Depends
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+import numpy as np
+from backend.data.alphavantage import fetch_daily_stock_data
 from backend.auth.routes import router as auth_router
 from backend.auth.security import require_auth
 from backend.db.database import init_db, get_cached_stock, insert_cached_stock
-from fastapi import FastAPI, Depends
-from dotenv import load_dotenv
-import os
-import requests
-
-# Load environment variables
-load_dotenv()
-
-# Load the API key
-ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
-
-if not ALPHA_VANTAGE_API_KEY:
-    raise RuntimeError("ALPHA_VANTAGE_API_KEY not found in environment")
-
-def fetch_daily_stock_data(symbol: str):
-    url = "https://www.alphavantage.co/query"
-
-    params = {
-        "function": "TIME_SERIES_DAILY",
-        "symbol": symbol,
-        "apikey": ALPHA_VANTAGE_API_KEY
-    }
-
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-
-    data = response.json()
-
-    if "Time Series (Daily)" not in data:
-        raise ValueError(f"Invalid response from Alpha Vantage: {data}")
-
-    return data["Time Series (Daily)"]
+from backend.ml.keras_model import load_trained_model, predict_trend
 
 init_db()
 
@@ -41,18 +14,25 @@ app = FastAPI()
 
 app.include_router(auth_router)
 
-# Indicate the port used in development
-# Update in Phase 5
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+BASE_DIR = Path(__file__).resolve().parent.parent
+FRONTEND_DIR = BASE_DIR / "frontend"
+
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+
+# Load the neural network model
+model = load_trained_model()
+
+# Convert daily price series into an array of daily returns ordered from oldest to newest
+def compute_returns_from_series(series):
+    dates = sorted(series.keys())
+    closes = [float(series[d]["4. close"]) for d in dates]
+
+    returns = []
+    for i in range(1, len(closes)):
+        r = (closes[i] - closes[i - 1]) / closes[i - 1]
+        returns.append(r)
+
+    return returns, dates[1:]  # returns aligned with dates
 
 
 # Root endpoint
@@ -62,7 +42,6 @@ def root():
 
 
 # List all the stocks
-# Update in phase 5
 @app.get("/stocks/list")
 def get_list():
     return ["AAPL", "GOOG", "IBM", "MSFT", "NPXI", "PANW", "PYPL", "TSLA"]
@@ -80,17 +59,14 @@ def analyze_stock(stock: str, date: str, user_email: str = Depends(require_auth)
             "price": cached['price'],
             "returns": cached['returns'],
             "volume": cached['volume'],
-            "trend": "green"
+            "trend": cached["trend"]
         }
     
     # If stock is not in cache, fetch from API
     series = fetch_daily_stock_data(stock)
 
-    # Sort dates (newest first)
-    dates = sorted(series.keys(), reverse=True)
-
-    if date is None:
-        date = dates[0]
+    # Sort dates from oldest to newest
+    dates = sorted(series.keys())
 
     if date not in series:
         raise ValueError(f"No data available for {date}")
@@ -101,17 +77,32 @@ def analyze_stock(stock: str, date: str, user_email: str = Depends(require_auth)
         raise ValueError("Cannot compute returns for earliest available date")
 
     today = series[date]
-    prev_day = series[dates[idx + 1]]
+    prev_day = series[dates[idx - 1]]
 
     close_today = float(today["4. close"])
     close_prev = float(prev_day["4. close"])
 
     returns = (close_today - close_prev) / close_prev
-
     volume = int(today["5. volume"])
 
+    # Compute rolling returns for neural network
+    closes = [float(series[d]["4. close"]) for d in dates[:idx + 1]]
+
+    if len(closes) < 31:
+        raise ValueError("Not enough historical data for neural network prediction")
+    
+    daily_returns = []
+    for i in range(1, len(closes)):
+        daily_returns.append((closes[i] - closes[i - 1]) / closes[i - 1])
+
+    last_30_returns = np.array(daily_returns[-30:])
+    
+    # Predict trend using trained neural network
+    trend_label = predict_trend(model, last_30_returns)
+    trend = "green" if trend_label == 1 else "red"
+
     # Cache the result
-    insert_cached_stock(stock, date, close_today, returns, volume)
+    insert_cached_stock(stock, date, close_today, returns, volume, trend)
 
     return {
         "name": stock,
@@ -119,5 +110,5 @@ def analyze_stock(stock: str, date: str, user_email: str = Depends(require_auth)
         "price": close_today,
         "returns": returns,
         "volume": volume,
-        "trend": "green",
+        "trend": trend,
     }

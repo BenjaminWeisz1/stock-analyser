@@ -12,8 +12,8 @@
         <h2>Authentication</h2>
         <input id="email-input" placeholder="Email">
         <input id="password-input" type="password" placeholder="Password">
-        <button id="login-btn">Login</button>
-        <button id="register-btn">Register</button>
+        <button type="button" id="login-btn">Login</button>
+        <button type="button" id="register-btn">Register</button>
         <p id="auth-message"></p>
     </div>
 
@@ -31,13 +31,19 @@
             <option>TSLA</option>
         </select>
         <input type="date" id="date-input">
-        <button id="analyze-btn">Analyze</button>
+        <button type="button" id="analyze-btn">Analyze</button>
     </div>
 
-    <!-- Stock details -->
+    <!-- Display stock details -->
     <div id="stock-view" style="display:none">
         <h2 id="stock-title">IBM</h2>
-        <pre id="result"></pre>
+        <div id="stock-details">
+            <p><strong>Date:</strong> <span id="stock-date"></span></p>
+            <p><strong>Price:</strong> $<span id="stock-price"></span></p>
+            <p><strong>Daily return:</strong> <span id="stock-returns"></span>%</p>
+            <p><strong>Volume:</strong> <span id="stock-volume"></span></p>
+            <p><strong>Trend:</strong> <span id="stock-trend"></span></p>
+        </div>
     </div>
 
     <!-- Load JS -->

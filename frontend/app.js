@@ -23,10 +23,23 @@
         const data = await response.json();
 
         document.getElementById("stock-title").textContent = data.name;
-        document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+        document.getElementById("stock-date").textContent = data.date;
+        document.getElementById("stock-price").textContent = data.price.toFixed(2);
+        document.getElementById("stock-returns").textContent = (data.returns * 100).toFixed(2);
+        document.getElementById("stock-volume").textContent = data.volume.toLocaleString();
 
-        // Hide the dashboard view
-        document.getElementById("dashboard-view").style.display = "none";
+        const trend = document.getElementById("stock-trend");
+
+        if (data.trend === "green") {
+            trend.textContent = "🟢 Increasing";
+            trend.className = "green";
+        } else {
+            trend.textContent = "🔴 Decreasing";
+            trend.className = "red";
+        }
+
+        // Show the dashboard so the user can conveniently re-run analysis
+        document.getElementById("dashboard-view").style.display = "block";
         
         // Show the stock details
         document.getElementById("stock-view").style.display = "block";
@@ -67,7 +80,13 @@
     }
 
     // When the analyze button is clicked, run analyzeStock()
-    document.getElementById("analyze-btn").addEventListener("click", analyzeStock);
+    document
+        .getElementById("analyze-btn")
+        .addEventListener("click", (event) => {
+            event.preventDefault();
+            analyzeStock();
+        });
+
 
     // When the login or register button is clicked, run authRequest
     document.getElementById("login-btn").addEventListener("click", () => authRequest("login"));
