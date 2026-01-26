@@ -22,7 +22,8 @@ Project for a full-stack web application that allows users to analyse stocks usi
 
 ## Caching
 - Stock analysis results are cached in a SQLite database
-- If a request has been processed before, cached results are returned to avoid redundant API calls
+- Trend predictions are not cached
+- Each analysis computes the trend using the currently loaded model to avoid stale predictions
 
 ## Neural network
 Use a simple feed-forward neural network for predicting short-term stock trends
@@ -36,3 +37,4 @@ Use a simple feed-forward neural network for predicting short-term stock trends
 - The model is trained offline using historical market data
 - Run backend/ml/download_stock_data.py to download daily price data from Alpha Vantage and store locally as CSV files
 - Run backend/ml/train_keras_model.py to train the model on this data and save the results to backend/ml/keras_model.h5
+- Training includes basic evaluation metrics such as accuracy, confusion matrix and baseline comparison

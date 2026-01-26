@@ -66,9 +66,14 @@
                 return;
             }
 
-            // Show success message
-            message.textContent = data.message;
+            if (endpoint === "register") {
+                // Registration does NOT log the user in
+                message.textContent = "Registration successful. Please log in.";
+                return;
+            }
 
+            // Show success message for logging in
+            message.textContent = data.message;
             currentUserEmail = email;
 
             // Make stocks visible if login successful

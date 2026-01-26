@@ -33,7 +33,7 @@ def get_cached_stock(symbol: str, date: str):
 
     cursor.execute(
         """
-        SELECT price, returns, volume, trend
+        SELECT price, returns, volume
         FROM stock_cache
         WHERE symbol = ? AND date = ?
         """,
@@ -45,17 +45,17 @@ def get_cached_stock(symbol: str, date: str):
 
     return row
 
-def insert_cached_stock(symbol, date, price, returns, volume, trend):
+def insert_cached_stock(symbol, date, price, returns, volume):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute(
         """
         INSERT OR IGNORE INTO stock_cache
-        (symbol, date, price, returns, volume, trend)
-        VALUES (?, ?, ?, ?, ?, ?)
+        (symbol, date, price, returns, volume)
+        VALUES (?, ?, ?, ?, ?)
         """,
-        (symbol, date, price, returns, volume, trend)
+        (symbol, date, price, returns, volume)
     )
     conn.commit()
     conn.close()

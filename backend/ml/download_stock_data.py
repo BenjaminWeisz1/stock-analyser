@@ -4,7 +4,7 @@ from pathlib import Path
 from backend.data.alphavantage import fetch_daily_stock_data
 
 # Stocks to train the neural network on
-SYMBOLS = ["AAPL", "GOOG", "IBM", "MSFT", "PYPL", "TSLA"]
+SYMBOLS = []
 
 # Make a path for the historical data to be saved in the data folder
 DATA_DIR = Path(__file__).resolve().parent / "data"

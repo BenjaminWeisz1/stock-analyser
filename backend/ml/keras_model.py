@@ -63,7 +63,7 @@ def train_model(returns, epochs = 20, batch_size = 32):
     )
 
     model.save("backend/ml/keras_model.h5")
-    return model
+    return model, X, y
 
 def load_trained_model():
     return load_model("backend/ml/keras_model.h5")

@@ -44,25 +44,12 @@ def root():
 # List all the stocks
 @app.get("/stocks/list")
 def get_list():
-    return ["AAPL", "GOOG", "IBM", "MSFT", "NPXI", "PANW", "PYPL", "TSLA"]
+    return ["AAPL", "GOOG", "IBM", "META", "MSFT", "PANW", "PYPL", "TSLA"]
 
 # Show the financial information associated with a stock
 @app.post("/stocks/analyze")
 def analyze_stock(stock: str, date: str, user_email: str = Depends(require_auth)):
-    
-    # Check if stock is in cache
-    cached = get_cached_stock(stock, date)
-    if cached:
-        return {
-            "name": stock,
-            "date": date,
-            "price": cached['price'],
-            "returns": cached['returns'],
-            "volume": cached['volume'],
-            "trend": cached["trend"]
-        }
-    
-    # If stock is not in cache, fetch from API
+    # Fetch the stock from API
     series = fetch_daily_stock_data(stock)
 
     # Sort dates from oldest to newest
@@ -76,33 +63,44 @@ def analyze_stock(stock: str, date: str, user_email: str = Depends(require_auth)
     if idx + 1 >= len(dates):
         raise ValueError("Cannot compute returns for earliest available date")
 
-    today = series[date]
-    prev_day = series[dates[idx - 1]]
+    # Check if stock is in cache
+    cached = get_cached_stock(stock, date)
+    
+    if cached:
+        close_today = cached["price"]
+        returns = cached["returns"]
+        volume = cached["volume"]
+    else:
+        today = series[date]
+        prev_day = series[dates[idx - 1]]
 
-    close_today = float(today["4. close"])
-    close_prev = float(prev_day["4. close"])
+        close_today = float(today["4. close"])
+        close_prev = float(prev_day["4. close"])
 
-    returns = (close_today - close_prev) / close_prev
-    volume = int(today["5. volume"])
+        returns = (close_today - close_prev) / close_prev
+        volume = int(today["5. volume"])
 
-    # Compute rolling returns for neural network
+        # Cache the result
+        insert_cached_stock(stock, date, close_today, returns, volume)
+
     closes = [float(series[d]["4. close"]) for d in dates[:idx + 1]]
 
     if len(closes) < 31:
         raise ValueError("Not enough historical data for neural network prediction")
-    
-    daily_returns = []
-    for i in range(1, len(closes)):
-        daily_returns.append((closes[i] - closes[i - 1]) / closes[i - 1])
+
+    daily_returns = [
+        (closes[i] - closes[i - 1]) / closes[i - 1]
+        for i in range(1, len(closes))
+    ]
 
     last_30_returns = np.array(daily_returns[-30:])
+
+    trend_label = predict_trend(model, last_30_returns)
+    trend = "green" if trend_label == 1 else "red"
     
     # Predict trend using trained neural network
     trend_label = predict_trend(model, last_30_returns)
     trend = "green" if trend_label == 1 else "red"
-
-    # Cache the result
-    insert_cached_stock(stock, date, close_today, returns, volume, trend)
 
     return {
         "name": stock,
