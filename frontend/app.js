@@ -1,6 +1,27 @@
     const API_BASE = "http://127.0.0.1:8000";
     let currentUserEmail = null;
 
+    function showError(message) {
+        let errorBox = document.getElementById("error-message");
+
+        if (!errorBox) {
+            errorBox = document.createElement("div");
+            errorBox.id = "error-message";
+            errorBox.className = "error";
+            document.getElementById("dashboard-view").prepend(errorBox);
+        }
+
+        errorBox.textContent = message;
+    }
+
+    function clearError() {
+        const errorBox = document.getElementById("error-message");
+        if (errorBox) {
+            errorBox.remove();
+        }
+    }
+    
+
     async function analyzeStock() {
         const stock = document.getElementById("stock-select").value;
         const date = document.getElementById("date-input").value;
@@ -10,39 +31,66 @@
         if (date) {
             url += `&date=${date}`;
         }
-        
-        // Send an HTTP POST request
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "X-User-Email": currentUserEmail
+
+        try {
+            // Send an HTTP POST request
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "X-User-Email": currentUserEmail
+                }
+            });
+
+            let data = null
+
+            // Store the response body content as a JSON object
+            try {
+                data = await response.json();
+            } catch {
+                data = null;
             }
-        });
 
-        // Store the response body content as a JSON object
-        const data = await response.json();
+            // Handle backend errors
+            if (!response.ok) {
+                if (data && data.detail) {
+                    showError(data.detail);
+                } else {
+                    showError("No data available for the selected date.");
+                }
+                return;
+            }
 
-        document.getElementById("stock-title").textContent = data.name;
-        document.getElementById("stock-date").textContent = data.date;
-        document.getElementById("stock-price").textContent = data.price.toFixed(2);
-        document.getElementById("stock-returns").textContent = (data.returns * 100).toFixed(2);
-        document.getElementById("stock-volume").textContent = data.volume.toLocaleString();
+            // Clear any previous error message
+            clearError()
 
-        const trend = document.getElementById("stock-trend");
+            document.getElementById("stock-title").textContent = data.name;
+            document.getElementById("stock-date").textContent = data.date;
+            document.getElementById("stock-price").textContent = data.price.toFixed(2);
+            document.getElementById("stock-returns").textContent = (data.returns * 100).toFixed(2);
+            document.getElementById("stock-volume").textContent = data.volume.toLocaleString();
 
-        if (data.trend === "green") {
-            trend.textContent = "🟢 Increasing";
-            trend.className = "green";
-        } else {
-            trend.textContent = "🔴 Decreasing";
-            trend.className = "red";
+            const trend = document.getElementById("stock-trend");
+
+            if (data.trend === "green") {
+                trend.textContent = "🟢 Increasing";
+                trend.className = "green";
+            } else {
+                trend.textContent = "🔴 Decreasing";
+                trend.className = "red";
+            }
+
+            // Show the dashboard so the user can conveniently re-run analysis
+            document.getElementById("dashboard-view").style.display = "block";
+            
+            // Show the stock details
+            document.getElementById("stock-view").style.display = "block";
+
+            // After showing results, scroll into view smoothly
+            document.getElementById("stock-view").scrollIntoView({ behavior: "smooth" });
+        } catch (err) {
+            showError("Network error. Please try again.")
         }
-
-        // Show the dashboard so the user can conveniently re-run analysis
-        document.getElementById("dashboard-view").style.display = "block";
         
-        // Show the stock details
-        document.getElementById("stock-view").style.display = "block";
     }
 
     async function authRequest(endpoint) {

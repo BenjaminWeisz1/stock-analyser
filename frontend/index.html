@@ -7,46 +7,82 @@
 </head>
 
 <body>
-    <!-- Login and signup -->
-    <div id="login-view">
-        <h2>Authentication</h2>
-        <input id="email-input" placeholder="Email">
-        <input id="password-input" type="password" placeholder="Password">
-        <button type="button" id="login-btn">Login</button>
-        <button type="button" id="register-btn">Register</button>
-        <p id="auth-message"></p>
-    </div>
+    <div class="app-container">
 
-    <!-- List stocks -->
-    <div id="dashboard-view" style="display:none">
-        <h2>Select Stock</h2>
-        <select id="stock-select">
-            <option>AAPL</option>
-            <option>GOOG</option>
-            <option>IBM</option>
-            <option>MSFT</option>
-            <option>NPXI</option>
-            <option>PANW</option>
-            <option>PYPL</option>
-            <option>TSLA</option>
-        </select>
-        <input type="date" id="date-input">
-        <button type="button" id="analyze-btn">Analyze</button>
-    </div>
+        <header class="app-header">
+            <h1>Corion Capital</h1>
+            <p>Neural-network powered stock analysis</p>
+        </header>
 
-    <!-- Display stock details -->
-    <div id="stock-view" style="display:none">
-        <h2 id="stock-title">IBM</h2>
-        <div id="stock-details">
-            <p><strong>Date:</strong> <span id="stock-date"></span></p>
-            <p><strong>Price:</strong> $<span id="stock-price"></span></p>
-            <p><strong>Daily return:</strong> <span id="stock-returns"></span>%</p>
-            <p><strong>Volume:</strong> <span id="stock-volume"></span></p>
-            <p><strong>Trend:</strong> <span id="stock-trend"></span></p>
+        <!-- Login and signup -->
+        <div id="login-view" class="card">
+            <h2>Authentication</h2>
+
+            <input id="email-input" placeholder="Email" />
+            <input id="password-input" type="password" placeholder="Password" />
+
+            <div class="button-row">
+                <button type="button" id="login-btn">Login</button>
+                <button type="button" id="register-btn" class="secondary">Register</button>
+            </div>
+
+            <p id="auth-message" class="message"></p>
         </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard-view" class="card" style="display:none">
+            <h2>Analyze a Stock</h2>
+
+            <div class="form-row">
+                <label>Stock</label>
+                <select id="stock-select">
+                    <option>AAPL</option>
+                    <option>GOOG</option>
+                    <option>IBM</option>
+                    <option>MSFT</option>
+                    <option>NPXI</option>
+                    <option>PANW</option>
+                    <option>PYPL</option>
+                    <option>TSLA</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label>Date</label>
+                <input type="date" id="date-input" />
+            </div>
+
+            <button type="button" id="analyze-btn" class="primary">Analyze</button>
+        </div>
+
+        <!-- Stock results -->
+        <div id="stock-view" class="card" style="display:none">
+            <h2 id="stock-title"></h2>
+
+            <div class="results-grid">
+                <div><span>Date</span><strong id="stock-date"></strong></div>
+                <div>
+                    <span>Price</span>
+                    <strong class="inline-value">
+                        $<span id="stock-price"></span>
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Daily Return</span>
+                    <strong class="inline-value">
+                        <span id="stock-returns"></span>%
+                    </strong>
+                </div>
+
+                <div><span>Volume</span><strong id="stock-volume"></strong></div>
+            </div>
+
+            <div id="stock-trend" class="trend"></div>
+        </div>
+
     </div>
 
-    <!-- Load JS -->
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 </body>
 </html>
