@@ -15,13 +15,13 @@ This app allows users to register, login, select a stock and date, and receive:
 - a machine-learning-based trend prediction (green=increasing, red=decreasing)
 
 ## High-level architecture
-**Frontend (HTML/CSS/JavaScript)**
-↓
-**FastAPI Backend (Python)**
-↓
-**SQLite Cache+ML Model**
-↓
-**Alpha Vantage Market Data API**
+Frontend (HTML / CSS / JavaScript)  
+↓  
+FastAPI Backend (Python)  
+↓  
+SQLite Cache + ML Model  
+↓  
+Alpha Vantage Market Data API
 
 The frontend and backend are hosted together and communicate via HTTP requests.
 
