@@ -1,4 +1,4 @@
-    const API_BASE = "https://stock-analyser.onrender.com";
+    const API_BASE = "";
     let currentUserEmail = null;
 
     function showError(message) {
