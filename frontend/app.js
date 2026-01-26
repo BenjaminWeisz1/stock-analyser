@@ -1,4 +1,4 @@
-    const API_BASE = "http://127.0.0.1:8000";
+    const API_BASE = "https://stock-analyser.onrender.com";
     let currentUserEmail = null;
 
     function showError(message) {
